@@ -1,18 +1,33 @@
+[build-system]
+requires = ["maturin>=1.0"]
+build-backend = "maturin"
+
+[project.urls]
+
+homepage = "https://github.com/MichailTal/pgn_parser"
+repository = "https://github.com/MichailTal/pgn_parser"
+
 [project]
-name = "png_parser"
-version = "0.1.0"
-description = "A Python library for parsing png files."
+name = "pgn_parser"
+version = "0.1.1"
+description = "A Python library for parsing pgn files and extracting information."
 readme = "README.md"
 license = "MIT"
 authors = [
-    { name = "Your Name", email = "your.email@example.com" }
+    { name = "Koehler, Nils", email = "nils.koehler1@gmx.net" }
 ]
-homepage = "https://github.com/yourusername/jbig2-parser"  # Add this line
-repository = "https://github.com/yourusername/jbig2-parser"  # Add this line
-keywords = ["png", "chees", "python-bindings", "rust"]
+
+keywords = ["pgn", "chess", "python-bindings", "rust"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Rust",
     "License :: OSI Approved :: MIT License",
     "Topic :: Software Development :: Libraries",
 ]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pytest = "^8.3.4"
+
+[tool.maturin]
+bindings = "pyo3"
