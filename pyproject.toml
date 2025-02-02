@@ -31,3 +31,5 @@ pytest = "^8.3.4"
 
 [tool.maturin]
 bindings = "pyo3"
+# "extension-module" tells pyo3 we want to build an extension module (skips linking against libpython.so)
+features = ["pyo3/extension-module"]

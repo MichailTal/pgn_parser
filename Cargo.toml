@@ -1,11 +1,16 @@
 [package]
-name = "png_parser"
+name = "pgn_parser"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-pyo3 = { version = "0.18", features = ["extension-module"] }
 regex = "1.11.1"
 
 [lib]
+name = "pgn_parser"
 crate-type = ["cdylib"]
+
+[dependencies.pyo3]
+version = "0.23.1"
+# "abi3-py38" tells pyo3 (and maturin) to build using the stable ABI with minimum Python version 3.8
+features = ["abi3-py310"]
