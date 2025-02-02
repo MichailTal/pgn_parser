@@ -30,6 +30,11 @@ fn parse_pgn(pgn: &str) -> PyResult<PGNReader> {
         PyValueError::new_err(format!("Failed to compile move regex: {}", e))
     })?;
 
+    // Check empty pgn
+    if pgn.len() == 0 {
+        return Err(PyValueError::new_err(format!("PGN is empty.")))
+    }
+
     // Extract metadata
     let metadata: Vec<(String, String)> = metadata_regex
         .captures_iter(pgn)
