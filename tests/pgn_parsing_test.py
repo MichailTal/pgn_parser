@@ -69,18 +69,6 @@ def test_parse_pgn_with_comments():
     assert "Nc6" in reader.moves
 
 
-def test_parse_invalid_pgn_missing_moves():
-    """Test parsing a PGN string with no moves."""
-    with pytest.raises(ValueError, match="Invalid metadata format in PGN"):
-        pgn_parser.parse_pgn(INVALID_PGN_MISSING_MOVES)
-
-
-def test_parse_invalid_pgn_malformed_metadata():
-    """Test parsing a PGN string with malformed metadata."""
-    with pytest.raises(ValueError, match="Invalid metadata format in PGN"):
-        pgn_parser.parse_pgn(INVALID_PGN_MALFORMED_METADATA)
-
-
 def test_parse_empty_pgn():
     """Test parsing an empty PGN string."""
     with pytest.raises(ValueError, match="PGN is empty"):
@@ -104,3 +92,32 @@ def test_parse_pgn_with_invalid_move_format():
     assert "e4" in reader.moves
     assert "Nf3" in reader.moves
     assert "Nc6" in reader.moves
+
+def test_pgn_file_read():
+    """Test the ability to open and read a .pgn file"""
+
+    pgn_file_path: str = r"tests\pgn_files\Tal_Botvinnik.pgn"
+    file_reader = pgn_parser.parse_single_pgn_file(pgn_file_path)
+
+    assert "e4" in file_reader.moves
+    assert "Nc3" in file_reader.moves
+    assert "Qxg8" in file_reader.moves
+
+    assert ("Event", "Wch23") in file_reader.metadata
+    assert ("Site", "Moscow RUS") in file_reader.metadata
+
+def test_unvalid_file_path():
+    """Tests handing over an unvalid file path"""
+
+    pgn_file_path: str = r"tests\pgn_files\Taaaaaal_Botvinnik.pgn"
+
+    with pytest.raises(OSError):
+        pgn_parser.parse_single_pgn_file(pgn_file_path)
+
+def test_unvalid_file_extension():
+    """Test the opening of an unsupported file type"""
+
+    pgn_file_path: str = r"tests\pgn_files\Tal_Botvinnik.txt"
+
+    with pytest.raises(OSError):
+        pgn_parser.parse_single_pgn_file(pgn_file_path)

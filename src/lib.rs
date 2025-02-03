@@ -1,6 +1,11 @@
+use std::ffi::OsStr;
+use std::path::Path;
+use std::{fs::File, io::Read};
+
 use pyo3::prelude::*;
 use regex::Regex;
 use pyo3::exceptions::PyValueError;
+use pyo3::exceptions::PyOSError;
 
 #[pyclass]
 pub struct PGNReader {
@@ -20,6 +25,7 @@ pub struct PGNReader {
 ///
 /// # Errors
 /// Returns a `PyValueError` if the PGN string is invalid or cannot be parsed.
+/// 
 #[pyfunction]
 fn parse_pgn(pgn: &str) -> PyResult<PGNReader> {
     let metadata_regex: Regex = Regex::new(r#"\[([^\]]+)\]"#).map_err(|e: regex::Error| {
@@ -56,10 +62,38 @@ fn parse_pgn(pgn: &str) -> PyResult<PGNReader> {
     Ok(PGNReader { metadata, moves })
 }
 
+fn check_file_extension(file_path: &str) -> PyResult<()> {
+    let file_extension: Option<&str> = Path::new(file_path).extension().and_then(OsStr::to_str);
+
+    if file_extension != Some("pgn") {
+        return Err(PyOSError::new_err(format!("Found incompatible file extension: {:?}", file_extension)));
+    }
+
+    Ok(())
+}
+
+fn open_single_pgn_file_content(file_path: &str) -> std::io::Result<String> {  
+    check_file_extension(file_path)?;
+    let mut file: File = File::open(file_path)?;
+    let mut contents: String = String::new();
+    file.read_to_string(&mut contents)?;
+    Ok(contents)
+}
+
+#[pyfunction]
+fn parse_single_pgn_file(file_path: &str) -> Result<PGNReader, PyErr> {
+    match open_single_pgn_file_content(file_path) {
+        Ok(content) => parse_pgn(&content).map_err(|e: PyErr| PyErr::from(e)),
+        Err(error) => Err(PyOSError::new_err(format!("File under the path {} could not be opened: {}", file_path, error))),
+    }
+}
+
+
 /// Python module for parsing PGN files.
 #[pymodule]
 fn pgn_parser(_py: Python, module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(parse_pgn, module)?)?;
+    module.add_function(wrap_pyfunction!(parse_single_pgn_file, module)?)?;
     module.add_class::<PGNReader>()?;
     Ok(())
 }
